@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   Patch,
   Post,
@@ -18,22 +19,32 @@ export class BenevoleController {
 
   @Get()
   getAllBenevole(): Promise<BenevoleReturn[]> {
-    return this.benevoleService.getAllBenevole();
+    return this.benevoleService.getAllBenevole().catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Get(':id')
   getBenevoleById(@Param('id') id: string): Promise<BenevoleReturn> {
-    return this.benevoleService.getBenevoleById(id);
+    return this.benevoleService.getBenevoleById(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Post()
-  createBenevole(@Body() newBenevole: BenevoleCreateDTO): Promise<BenevoleReturn> {
-    return this.benevoleService.createBenevole(newBenevole);
+  createBenevole(
+    @Body() newBenevole: BenevoleCreateDTO,
+  ): Promise<BenevoleReturn> {
+    return this.benevoleService.createBenevole(newBenevole).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Delete(':id')
   deleteBenevole(@Param('id') id: string): Promise<BenevoleReturn> {
-    return this.benevoleService.deleteBenevole(id);
+    return this.benevoleService.deleteBenevole(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Patch(':id')
@@ -41,6 +52,8 @@ export class BenevoleController {
     @Param('id') id: string,
     @Body() benevole: BenevoleUpdateDTO,
   ): Promise<BenevoleReturn> {
-    return this.benevoleService.updateBenevole(id, benevole);
+    return this.benevoleService.updateBenevole(id, benevole).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 }

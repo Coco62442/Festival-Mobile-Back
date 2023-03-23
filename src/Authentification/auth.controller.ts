@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpException } from '@nestjs/common';
 import { BenevoleCreateDTO } from 'src/Benevole/DTO/benevole.create.dto';
 import { BenevoleLoginDTO } from 'src/Benevole/DTO/benevole.login.dto';
 import { BenevoleReturn } from 'src/Benevole/Interface/benevoleReturn.interface';
@@ -12,13 +12,15 @@ export class AuthController {
   async register(
     @Body() userData: BenevoleCreateDTO,
   ): Promise<Partial<BenevoleReturn>> {
-    return this.authService.register(userData);
+    return this.authService.register(userData).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Post('login')
-  async login(
-    @Body() userData: BenevoleLoginDTO,
-  ): Promise<{ token: string }> {
-    return this.authService.login(userData);
+  async login(@Body() userData: BenevoleLoginDTO): Promise<{ token: string }> {
+    return this.authService.login(userData).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 }

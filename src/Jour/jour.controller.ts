@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   Patch,
   Post,
@@ -18,22 +19,30 @@ export class JourController {
 
   @Get()
   getAllJour(): Promise<Jour[]> {
-    return this.jourService.getAllJours();
+    return this.jourService.getAllJours().catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Get(':id')
   getJourById(@Param('id') id: string): Promise<Jour> {
-    return this.jourService.getJourById(id);
+    return this.jourService.getJourById(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Post()
   createJour(@Body() newJour: JourDTO): Promise<Jour> {
-    return this.jourService.createJour(newJour);
+    return this.jourService.createJour(newJour).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Delete(':id')
   deleteJour(@Param('id') id: string): Promise<Jour> {
-    return this.jourService.deleteJour(id);
+    return this.jourService.deleteJour(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Patch(':id')
@@ -41,6 +50,8 @@ export class JourController {
     @Param('id') id: string,
     @Body() jour: JourUpdateDTO,
   ): Promise<Jour> {
-    return this.jourService.updateJour(id, jour);
+    return this.jourService.updateJour(id, jour).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   Patch,
   Post,
@@ -18,32 +19,54 @@ export class FestivalController {
 
   @Get()
   getAllFestival(): Promise<Festival[]> {
-    return this.festivalService.getAllFestivals();
+    return this.festivalService.getAllFestivals().catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Get(':id')
   getFestivalById(@Param('id') id: string): Promise<Festival> {
-    return this.festivalService.getFestivalById(id);
+    return this.festivalService.getFestivalById(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Post()
   createFestival(@Body() newFestival: FestivalDTO): Promise<Festival> {
-    return this.festivalService.createFestival(newFestival);
+    return this.festivalService.createFestival(newFestival).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Patch(':idFestival/:idBenevole/addBenevole')
-  addBenevoleToFestival(@Param('idFestival') idFestival: string, @Param('idBenevole') idBenevole: string): Promise<Festival> {
-    return this.festivalService.addBenevoleToFestival(idFestival, idBenevole);
+  addBenevoleToFestival(
+    @Param('idFestival') idFestival: string,
+    @Param('idBenevole') idBenevole: string,
+  ): Promise<Festival> {
+    return this.festivalService
+      .addBenevoleToFestival(idFestival, idBenevole)
+      .catch((error) => {
+        throw new HttpException(error.message, error.status);
+      });
   }
-  
+
   @Patch(':idFestival/:idBenevole/removeBenevole')
-  removeBenevoleToFestival(@Param('idFestival') idFestival: string, @Param('idBenevole') idBenevole: string): Promise<Festival> {
-    return this.festivalService.removeBenevoleToFestival(idFestival,idBenevole);
+  removeBenevoleToFestival(
+    @Param('idFestival') idFestival: string,
+    @Param('idBenevole') idBenevole: string,
+  ): Promise<Festival> {
+    return this.festivalService
+      .removeBenevoleToFestival(idFestival, idBenevole)
+      .catch((error) => {
+        throw new HttpException(error.message, error.status);
+      });
   }
 
   @Delete(':id')
   deleteFestival(@Param('id') id: string): Promise<Festival> {
-    return this.festivalService.deleteFestival(id);
+    return this.festivalService.deleteFestival(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Patch(':id')
@@ -51,11 +74,15 @@ export class FestivalController {
     @Param('id') id: string,
     @Body() festival: FestivalUpdateDTO,
   ): Promise<Festival> {
-    return this.festivalService.updateFestival(id, festival);
+    return this.festivalService.updateFestival(id, festival).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Patch(':id/close')
   changeStateFestival(@Param('id') id: string): Promise<Festival> {
-    return this.festivalService.changeStateFestival(id);
+    return this.festivalService.changeStateFestival(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 }

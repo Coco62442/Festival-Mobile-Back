@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   Patch,
   Post,
@@ -18,22 +19,30 @@ export class ZoneController {
 
   @Get()
   getAllZones(): Promise<Zone[]> {
-    return this.zoneService.getAllZones();
+    return this.zoneService.getAllZones().catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Get(':id')
   getZoneById(@Param('id') id: string): Promise<Zone> {
-    return this.zoneService.getZoneById(id);
+    return this.zoneService.getZoneById(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Post()
   createZone(@Body() newZone: ZoneDTO): Promise<Zone> {
-    return this.zoneService.createZone(newZone);
+    return this.zoneService.createZone(newZone).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Delete(':id')
   deleteZone(@Param('id') id: string): Promise<Zone> {
-    return this.zoneService.deleteZone(id);
+    return this.zoneService.deleteZone(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 
   @Patch(':id')
@@ -41,6 +50,8 @@ export class ZoneController {
     @Param('id') id: string,
     @Body() zone: ZoneUpdateDTO,
   ): Promise<Zone> {
-    return this.zoneService.updateZone(id, zone);
+    return this.zoneService.updateZone(id, zone).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
   }
 }
