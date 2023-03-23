@@ -17,29 +17,27 @@ export class BenevoleController {
   constructor(private readonly benevoleService: BenevoleService) {}
 
   @Get()
-  async getAllBenevoles(): Promise<BenevoleReturn[]> {
-    return this.benevoleService.getAllBenevoles();
+  getAllBenevole(): Promise<BenevoleReturn[]> {
+    return this.benevoleService.getAllBenevole();
   }
 
   @Get(':id')
-  async getBenevoleById(@Param('id') id: string): Promise<BenevoleReturn> {
+  getBenevoleById(@Param('id') id: string): Promise<BenevoleReturn> {
     return this.benevoleService.getBenevoleById(id);
   }
 
   @Post()
-  async createBenevole(
-    @Body() newBenevole: BenevoleCreateDTO,
-  ): Promise<BenevoleReturn> {
+  createBenevole(@Body() newBenevole: BenevoleCreateDTO): Promise<BenevoleReturn> {
     return this.benevoleService.createBenevole(newBenevole);
   }
 
   @Delete(':id')
-  async deleteBenevole(@Param('id') id: string) {
-    this.benevoleService.deleteBenevole(id);
+  deleteBenevole(@Param('id') id: string): Promise<BenevoleReturn> {
+    return this.benevoleService.deleteBenevole(id);
   }
 
   @Patch(':id')
-  async updateBenevole(
+  updateBenevole(
     @Param('id') id: string,
     @Body() benevole: BenevoleUpdateDTO,
   ): Promise<BenevoleReturn> {

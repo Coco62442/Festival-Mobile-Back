@@ -1,21 +1,23 @@
-import { Model } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-
-import { Jour, JourDocument } from '../Schema/Jour.schema';
 import { validateOrReject } from 'class-validator';
-import { CreneauService } from 'src/Creneau/creneau.service';
+import { Model, ObjectId } from 'mongoose';
+import { Jour, JourDocument } from 'src/Schema/Jour.schema';
+import { JourDTO } from './DTO/jour.dto';
+import { JourUpdateDTO } from './DTO/jour.update.dto';
 
 @Injectable()
 export class JourService {
   constructor(
-    @InjectModel(Jour.name) private jourModel: Model<JourDocument>,
-    private readonly creneauService: CreneauService,
+    @InjectModel(Jour.name)
+    private readonly jourModel: Model<JourDocument>,
   ) {}
 
   async getAllJours(): Promise<Jour[]> {
     try {
-      return await this.jourModel.find().exec();
+      const result = await this.jourModel.find().exec();
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -29,33 +31,38 @@ export class JourService {
 
   async getJourById(id: string): Promise<Jour> {
     try {
-      const jour = await this.jourModel.findById(id).exec();
+      const result = await this.jourModel.findById(id).exec();
 
-      if (!jour) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Jour introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!result) {
+        throw new Error('Jour non trouvé');
       }
 
-      return jour;
+      return result;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Jour non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Jour non trouvé`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 
-  async createJour(newJour: Jour): Promise<Jour> {
+  async createJour(newJour: JourDTO): Promise<Jour> {
     try {
-      await validateOrReject(newJour);
+      validateOrReject(newJour);
     } catch (error) {
       throw new HttpException(
         {
@@ -67,32 +74,9 @@ export class JourService {
     }
 
     try {
-      newJour.idCreneaux.map(async (idCreneau) => {
-        const creneau = await this.creneauService.getCreneauById(idCreneau);
+      const result = await this.jourModel.create(newJour);
 
-        if (!creneau) {
-          throw new HttpException(
-            {
-              status: HttpStatus.NOT_FOUND,
-              error: `Un des créneaux n'est pas valide`,
-            },
-            HttpStatus.NOT_FOUND,
-          );
-        }
-      });
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    try {
-      const createdJour = new this.jourModel(newJour);
-      return createdJour.save();
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -104,9 +88,9 @@ export class JourService {
     }
   }
 
-  async updateJour(id: string, jour: Jour): Promise<Jour> {
+  async updateJour(id: string, jour: JourUpdateDTO): Promise<Jour> {
     try {
-      await validateOrReject(jour);
+      validateOrReject(jour);
     } catch (error) {
       throw new HttpException(
         {
@@ -118,79 +102,65 @@ export class JourService {
     }
 
     try {
-      jour.idCreneaux.map(async (idCreneau) => {
-        const creneau = await this.creneauService.getCreneauById(idCreneau);
+      const updatedJour = await this.jourModel.findByIdAndUpdate(id, jour, {
+        new: true,
+      });
 
-        if (!creneau) {
+      if (!updatedJour) {
+        throw new Error('Jour non trouvé');
+      }
+
+      return updatedJour;
+    } catch (error) {
+      switch (error.message) {
+        case 'Jour non trouvé':
           throw new HttpException(
             {
               status: HttpStatus.NOT_FOUND,
-              error: `Un des créneaux n'est pas valide`,
+              error: `Jour non trouvé`,
             },
             HttpStatus.NOT_FOUND,
           );
-        }
-      });
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    try {
-      const jourUpdated = await this.jourModel
-        .findByIdAndUpdate(id, jour, { new: true })
-        .exec();
-
-      if (!jourUpdated) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Jour introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
       }
-
-      return jourUpdated;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
     }
   }
 
   async deleteJour(id: string): Promise<Jour> {
     try {
-      const jourDeleted = await this.jourModel.findByIdAndDelete(id).exec();
+      const deletedJour = await this.jourModel.findByIdAndDelete(id);
 
-      if (!jourDeleted) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Jour introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!deletedJour) {
+        throw new Error('Jour non trouvé');
       }
 
-      return jourDeleted;
+      return deletedJour;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Jour non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Jour non trouvé`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 }

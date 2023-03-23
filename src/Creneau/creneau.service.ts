@@ -1,19 +1,23 @@
-import { Model } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-
-import { Creneau, CreneauDocument } from '../Schema/Creneau.schema';
 import { validateOrReject } from 'class-validator';
+import { Model, ObjectId } from 'mongoose';
+import { Creneau, CreneauDocument } from 'src/Schema/Creneau.schema';
+import { CreneauDTO } from './DTO/creneau.dto';
+import { CreneauUpdateDTO } from './DTO/creneau.update.dto';
 
 @Injectable()
 export class CreneauService {
   constructor(
-    @InjectModel(Creneau.name) private creneauModel: Model<CreneauDocument>,
+    @InjectModel(Creneau.name)
+    private readonly creneauModel: Model<CreneauDocument>,
   ) {}
 
   async getAllCreneaux(): Promise<Creneau[]> {
     try {
-      return await this.creneauModel.find().exec();
+      const result = await this.creneauModel.find().exec();
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -27,33 +31,38 @@ export class CreneauService {
 
   async getCreneauById(id: string): Promise<Creneau> {
     try {
-      const creneau = await this.creneauModel.findById(id).exec();
+      const result = await this.creneauModel.findById(id).exec();
 
-      if (!creneau) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Creneau introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!result) {
+        throw new Error('Creneau non trouvé');
       }
 
-      return creneau;
+      return result;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Creneau non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Creneau non trouvé: ${error}`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 
-  async createCreneau(newCreneau: Creneau): Promise<Creneau> {
+  async createCreneau(creneauDTO: CreneauDTO): Promise<Creneau> {
     try {
-      await validateOrReject(newCreneau);
+      validateOrReject(creneauDTO);
     } catch (error) {
       throw new HttpException(
         {
@@ -65,8 +74,9 @@ export class CreneauService {
     }
 
     try {
-      const creneau = new this.creneauModel(newCreneau);
-      return await creneau.save();
+      const result = await this.creneauModel.create(creneauDTO);
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -78,9 +88,12 @@ export class CreneauService {
     }
   }
 
-  async updateCreneau(id: string, updatedCreneau: Creneau): Promise<Creneau> {
+  async updateCreneau(
+    id: string,
+    creneauUpdateDTO: CreneauUpdateDTO,
+  ): Promise<Creneau> {
     try {
-      await validateOrReject(updatedCreneau);
+      validateOrReject(creneauUpdateDTO);
     } catch (error) {
       throw new HttpException(
         {
@@ -92,57 +105,67 @@ export class CreneauService {
     }
 
     try {
-      const creneau = await this.creneauModel
-        .findByIdAndUpdate(id, updatedCreneau, { new: true })
-        .exec();
+      const updatedCreneau = await this.creneauModel.findByIdAndUpdate(
+        id,
+        creneauUpdateDTO,
+        { new: true },
+      );
 
-      if (!creneau) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Creneau introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!updatedCreneau) {
+        throw new Error('Creneau non trouvé');
       }
 
-      return creneau;
+      return updatedCreneau;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Creneau non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Creneau non trouvé: ${error}`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 
   async deleteCreneau(id: string): Promise<Creneau> {
     try {
-      const creneauDeleted = await this.creneauModel
-        .findByIdAndDelete(id)
-        .exec();
+      const deletedCreneau = await this.creneauModel.findByIdAndDelete(id);
 
-      if (!creneauDeleted) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Jour introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!deletedCreneau) {
+        throw new Error('Creneau non trouvé');
       }
 
-      return creneauDeleted;
+      return deletedCreneau;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Creneau non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Creneau non trouvé: ${error}`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 }

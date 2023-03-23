@@ -10,6 +10,5 @@ import { CreneauSchema } from '../Schema/Creneau.schema';
   ],
   controllers: [CreneauController],
   providers: [CreneauService],
-  exports: [CreneauService],
 })
 export class CreneauModule {}

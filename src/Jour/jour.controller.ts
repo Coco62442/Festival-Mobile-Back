@@ -7,39 +7,40 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { JourDTO } from './DTO/jour.dto';
-import { JourUpdateDTO } from './DTO/jour.update.dto';
 import { JourService } from './jour.service';
+import { JourDTO } from './DTO/jour.dto';
+import { Jour } from 'src/Schema/Jour.schema';
+import { JourUpdateDTO } from './DTO/jour.update.dto';
 
 @Controller('jour')
 export class JourController {
   constructor(private readonly jourService: JourService) {}
 
   @Get()
-  async getAllJours(): Promise<JourDTO[]> {
+  getAllJour(): Promise<Jour[]> {
     return this.jourService.getAllJours();
   }
 
   @Get(':id')
-  async getJourById(@Param('id') id: string): Promise<JourDTO> {
+  getJourById(@Param('id') id: string): Promise<Jour> {
     return this.jourService.getJourById(id);
   }
 
   @Post()
-  async createJour(@Body() newJour: JourDTO): Promise<JourDTO> {
+  createJour(@Body() newJour: JourDTO): Promise<Jour> {
     return this.jourService.createJour(newJour);
   }
 
   @Delete(':id')
-  async deleteJour(@Param('id') id: string) {
-    this.jourService.deleteJour(id);
+  deleteJour(@Param('id') id: string): Promise<Jour> {
+    return this.jourService.deleteJour(id);
   }
 
   @Patch(':id')
-  async updateJour(
+  updateJour(
     @Param('id') id: string,
     @Body() jour: JourUpdateDTO,
-  ): Promise<JourDTO> {
+  ): Promise<Jour> {
     return this.jourService.updateJour(id, jour);
   }
 }

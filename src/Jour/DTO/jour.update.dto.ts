@@ -1,9 +1,9 @@
 import {
   IsNotEmpty,
   IsString,
-  IsObject,
   IsOptional,
   IsDateString,
+  IsMongoId,
 } from 'class-validator';
 
 export class JourUpdateDTO {
@@ -28,7 +28,7 @@ export class JourUpdateDTO {
   finHeure: Date;
 
   @IsOptional()
-  @IsObject()
+  @IsMongoId()
   @IsNotEmpty()
-  idCreneaux: string[];
+  idFestival: string;
 }

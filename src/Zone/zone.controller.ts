@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { Zone } from 'src/Schema/Zone.schema';
 import { ZoneDTO } from './DTO/zone.dto';
 import { ZoneUpdateDTO } from './DTO/zone.update.dto';
 import { ZoneService } from './zone.service';
@@ -16,30 +17,30 @@ export class ZoneController {
   constructor(private readonly zoneService: ZoneService) {}
 
   @Get()
-  async getAllZones(): Promise<ZoneDTO[]> {
+  getAllZones(): Promise<Zone[]> {
     return this.zoneService.getAllZones();
   }
 
   @Get(':id')
-  async getZoneById(@Param('id') id: string): Promise<ZoneDTO> {
+  getZoneById(@Param('id') id: string): Promise<Zone> {
     return this.zoneService.getZoneById(id);
   }
 
   @Post()
-  async createZone(@Body() newZone: ZoneDTO): Promise<ZoneDTO> {
+  createZone(@Body() newZone: ZoneDTO): Promise<Zone> {
     return this.zoneService.createZone(newZone);
   }
 
   @Delete(':id')
-  async deleteZone(@Param('id') id: string) {
-    this.zoneService.deleteZone(id);
+  deleteZone(@Param('id') id: string): Promise<Zone> {
+    return this.zoneService.deleteZone(id);
   }
 
   @Patch(':id')
-  async updateZone(
+  updateZone(
     @Param('id') id: string,
     @Body() zone: ZoneUpdateDTO,
-  ): Promise<ZoneDTO> {
+  ): Promise<Zone> {
     return this.zoneService.updateZone(id, zone);
   }
 }

@@ -18,11 +18,8 @@ export class Jour {
   @Prop({ required: true })
   finHeure: Date;
 
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Creneau' }],
-    default: [],
-  })
-  idCreneaux: string[];
+  @Prop({ required: true })
+  idFestival: string;
 }
 
 export const JourSchema = SchemaFactory.createForClass(Jour);

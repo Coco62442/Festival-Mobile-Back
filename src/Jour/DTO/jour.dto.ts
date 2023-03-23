@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsArray,
   IsOptional,
+  IsMongoId,
 } from 'class-validator';
 
 export class JourDTO {
@@ -23,7 +24,8 @@ export class JourDTO {
   @IsNotEmpty()
   finHeure: Date;
 
-  @IsArray()
-  @IsOptional()
-  idCreneaux: string[];
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId()
+  idFestival: string;
 }

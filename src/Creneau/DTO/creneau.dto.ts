@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsDateString } from 'class-validator';
+import { IsNotEmpty, IsDateString, IsMongoId } from 'class-validator';
 
 export class CreneauDTO {
   @IsDateString()
@@ -8,4 +8,8 @@ export class CreneauDTO {
   @IsDateString()
   @IsNotEmpty()
   heureFin: Date;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  idJour: string;
 }

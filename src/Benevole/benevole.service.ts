@@ -1,19 +1,20 @@
-import { Model, ObjectId } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-
-import { Benevole, BenevoleDocument } from '../Schema/Benevole.schema';
-import { BenevoleReturn } from './Interface/benevoleReturn.interface';
 import { validateOrReject } from 'class-validator';
+import { Model, ObjectId } from 'mongoose';
+import { Benevole, BenevoleDocument } from 'src/Schema/Benevole.schema';
 import { BenevoleCreateDTO } from './DTO/benevole.create.dto';
+import { BenevoleUpdateDTO } from './DTO/benevole.update.dto';
+import { BenevoleReturn } from './Interface/benevoleReturn.interface';
 
 @Injectable()
 export class BenevoleService {
   constructor(
-    @InjectModel(Benevole.name) private benevoleModel: Model<BenevoleDocument>,
+    @InjectModel(Benevole.name)
+    private readonly benevoleModel: Model<BenevoleDocument>,
   ) {}
 
-  async getAllBenevoles(): Promise<BenevoleReturn[]> {
+  async getAllBenevole(): Promise<BenevoleReturn[]> {
     try {
       const benevoles = await this.benevoleModel.find().exec();
 
@@ -42,13 +43,7 @@ export class BenevoleService {
       const benevole = await this.benevoleModel.findById(id).exec();
 
       if (!benevole) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Bénévole introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+        throw new Error('Bénévole non trouvé');
       }
 
       return {
@@ -59,13 +54,25 @@ export class BenevoleService {
         isAdmin: benevole.isAdmin,
       };
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Bénévole non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Bénévole introuvable`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 
@@ -73,7 +80,7 @@ export class BenevoleService {
     newBenevole: BenevoleCreateDTO,
   ): Promise<BenevoleReturn> {
     try {
-      await validateOrReject(newBenevole);
+      validateOrReject(newBenevole);
     } catch (error) {
       throw new HttpException(
         {
@@ -85,66 +92,83 @@ export class BenevoleService {
     }
 
     try {
-      const benevole = await this.benevoleModel.create(newBenevole);
+      const benevole = new this.benevoleModel(newBenevole);
+      const benevoleCreated = await benevole.save();
+
       return {
-        _id: benevole._id as unknown as ObjectId,
-        nom: benevole.nom,
-        prenom: benevole.prenom,
-        email: benevole.email,
-        isAdmin: benevole.isAdmin,
+        _id: benevoleCreated._id as unknown as ObjectId,
+        nom: benevoleCreated.nom,
+        prenom: benevoleCreated.prenom,
+        email: benevoleCreated.email,
+        isAdmin: benevoleCreated.isAdmin,
       };
     } catch (error) {
-      if (error.code == 11000) {
-        throw new HttpException(
-          {
-            status: HttpStatus.CONFLICT,
-            error: `Un bénévole avec cet email existe déjà`,
-          },
-          HttpStatus.CONFLICT,
-        );
+      switch (error.code) {
+        case 11000:
+          throw new HttpException(
+            {
+              status: HttpStatus.CONFLICT,
+              error: `L'email ${newBenevole.email} est déjà utilisé`,
+            },
+            HttpStatus.CONFLICT,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
       }
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
     }
   }
 
-  async deleteBenevole(id: string): Promise<void> {
+  async deleteBenevole(id: string): Promise<BenevoleReturn> {
     try {
-      const benevole = await this.benevoleModel.findByIdAndDelete(id).exec();
+      const benevoleDeleted = await this.benevoleModel
+        .findByIdAndDelete(id)
+        .exec();
 
-      if (!benevole) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Bénévole introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!benevoleDeleted) {
+        throw new Error('Bénévole non trouvé');
       }
 
-      return;
+      return {
+        _id: benevoleDeleted._id as unknown as ObjectId,
+        nom: benevoleDeleted.nom,
+        prenom: benevoleDeleted.prenom,
+        email: benevoleDeleted.email,
+        isAdmin: benevoleDeleted.isAdmin,
+      };
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Bénévole non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Bénévole introuvable`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 
   async updateBenevole(
     id: string,
-    benevole: Benevole,
+    updateBenevole: BenevoleUpdateDTO,
   ): Promise<BenevoleReturn> {
     try {
-      await validateOrReject(benevole);
+      validateOrReject(updateBenevole);
     } catch (error) {
       throw new HttpException(
         {
@@ -156,20 +180,12 @@ export class BenevoleService {
     }
 
     try {
-      const benevoleUpdated = await this.benevoleModel.findOneAndUpdate(
-        { _id: id },
-        { $set: benevole },
-        { new: true },
-      );
+      const benevoleUpdated = await this.benevoleModel
+        .findByIdAndUpdate(id, updateBenevole, { new: true })
+        .exec();
 
       if (!benevoleUpdated) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Bénévole introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+        throw new Error('Bénévole non trouvé');
       }
 
       return {
@@ -180,13 +196,25 @@ export class BenevoleService {
         isAdmin: benevoleUpdated.isAdmin,
       };
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      switch (error.message) {
+        case 'Bénévole non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Bénévole introuvable`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 }

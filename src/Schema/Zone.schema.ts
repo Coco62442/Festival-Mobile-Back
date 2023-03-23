@@ -13,6 +13,9 @@ export class Zone {
 
   @Prop()
   nbBenevolesActuels: number;
+
+  @Prop({ required: true})
+  idFestival: string;
 }
 
 export const ZoneSchema = SchemaFactory.createForClass(Zone);

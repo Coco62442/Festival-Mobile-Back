@@ -10,6 +10,9 @@ export class Creneau {
 
   @Prop({ required: true })
   heureFin: Date;
+
+  @Prop({ required: true })
+  idJour: string;
 }
 
 export const CreneauSchema = SchemaFactory.createForClass(Creneau);

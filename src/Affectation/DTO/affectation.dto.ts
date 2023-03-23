@@ -12,4 +12,8 @@ export class AffectationDTO {
   @IsMongoId()
   @IsOptional()
   idZone: string;
+
+  @IsMongoId()
+  @IsNotEmpty()
+  idFestival: string;
 }

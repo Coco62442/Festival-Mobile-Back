@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, ObjectId } from 'mongoose';
-import { Jour, JourSchema } from './Jour.schema';
-import { Zone, ZoneSchema } from './Zone.schema';
+import { HydratedDocument } from 'mongoose';
+import { Benevole } from './Benevole.schema';
 
 export type FestivalDocument = HydratedDocument<Festival>;
 
@@ -16,20 +15,13 @@ export class Festival {
   @Prop({ required: true })
   nbrJours: number;
 
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Zone' }],
-    required: true,
-  })
-  idZones: string[];
-
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Jour' }],
-    required: true,
-  })
-  idJours: string[];
+  @Prop({ default: [] })
+  idBenevoles: string[];
 
   @Prop({ default: false })
   isClosed: boolean;
+
+  benevoles: Benevole[];
 }
 
 export const FestivalSchema = SchemaFactory.createForClass(Festival);

@@ -1,9 +1,11 @@
-import { Model } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-
-import { Affectation, AffectationDocument } from '../Schema/Affectation.schema';
 import { validateOrReject } from 'class-validator';
+import { Model, ObjectId } from 'mongoose';
+import {
+  Affectation,
+  AffectationDocument,
+} from 'src/Schema/Affectation.schema';
 import { AffectationDTO } from './DTO/affectation.dto';
 import { AffectationUpdateDTO } from './DTO/affectation.update.dto';
 
@@ -11,12 +13,14 @@ import { AffectationUpdateDTO } from './DTO/affectation.update.dto';
 export class AffectationService {
   constructor(
     @InjectModel(Affectation.name)
-    private affectationModel: Model<AffectationDocument>,
+    private readonly affectationModel: Model<AffectationDocument>,
   ) {}
 
   async getAllAffectations(): Promise<Affectation[]> {
     try {
-      return await this.affectationModel.find().exec();
+      const result = await this.affectationModel.find().exec();
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -30,19 +34,13 @@ export class AffectationService {
 
   async getAffectationById(id: string): Promise<Affectation> {
     try {
-      const affectation = await this.affectationModel.findById(id).exec();
+      const result = await this.affectationModel.findById(id).exec();
 
-      if (!affectation) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Affectation introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!result) {
+        throw new Error('Affectation non trouvé');
       }
 
-      return affectation;
+      return result[0];
     } catch (error) {
       throw new HttpException(
         {
@@ -54,23 +52,33 @@ export class AffectationService {
     }
   }
 
-  async createAffectation(
-    newAffectation: AffectationDTO,
-  ): Promise<Affectation> {
+  async createAffectation(affectation: AffectationDTO): Promise<Affectation> {
     try {
+      const newAffectation = new this.affectationModel(affectation);
       await validateOrReject(newAffectation);
+      const result = await newAffectation.save();
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
-          status: HttpStatus.BAD_REQUEST,
-          error: `Erreur de validation: ${error}`,
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
 
+  async deleteAffectation(id: string): Promise<Affectation> {
     try {
-      return this.affectationModel.create(newAffectation);
+      const result = await this.affectationModel.findByIdAndDelete(id);
+
+      if (!result) {
+        throw new Error('Affectation non trouvé');
+      }
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -87,33 +95,17 @@ export class AffectationService {
     affectation: AffectationUpdateDTO,
   ): Promise<Affectation> {
     try {
-      await validateOrReject(affectation);
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: `Erreur de validation: ${error}`,
-        },
-        HttpStatus.BAD_REQUEST,
+      const result = await this.affectationModel.findByIdAndUpdate(
+        id,
+        affectation,
+        { new: true },
       );
-    }
 
-    try {
-      const affectationUpdated = await this.affectationModel
-        .findByIdAndUpdate(id, affectation, { new: true })
-        .exec();
-
-      if (!affectationUpdated) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Affectation introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!result) {
+        throw new Error('Affectation non trouvé');
       }
 
-      return affectationUpdated;
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -125,23 +117,49 @@ export class AffectationService {
     }
   }
 
-  async deleteAffectation(id: string): Promise<Affectation> {
+  async addBenevoleToAffectation(
+    idAffectation: string,
+    idBenevole: string,
+  ): Promise<Affectation> {
     try {
-      const affectationDeleted = await this.affectationModel
-        .findByIdAndDelete(id)
-        .exec();
+      const result = await this.affectationModel.findByIdAndUpdate(
+        idAffectation,
+        { $push: { idBenevoles: idBenevole } },
+        { new: true },
+      );
 
-      if (!affectationDeleted) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Affectation introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!result) {
+        throw new Error('Affectation non trouvé');
       }
 
-      return affectationDeleted;
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async removeBenevoleToAffectation(
+    idAffectation: string,
+    idBenevole: string,
+  ): Promise<Affectation> {
+    try {
+      const result = await this.affectationModel.findByIdAndUpdate(
+        idAffectation,
+        { $pull: { idBenevoles: idBenevole } },
+        { new: true },
+      );
+
+      if (!result) {
+        throw new Error('Affectation non trouvé');
+      }
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {

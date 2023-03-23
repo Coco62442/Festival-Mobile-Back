@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Min, IsInt } from 'class-validator';
+import { IsNotEmpty, IsString, Min, IsInt, IsMongoId } from 'class-validator';
 
 export class ZoneDTO {
   @IsString()
@@ -13,4 +13,8 @@ export class ZoneDTO {
   @IsInt()
   @Min(0)
   nbBenevolesActuels: number;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  idFestival: string;
 }

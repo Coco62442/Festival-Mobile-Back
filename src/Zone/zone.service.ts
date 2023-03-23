@@ -1,17 +1,23 @@
-import { Model } from 'mongoose';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-
-import { Zone, ZoneDocument } from '../Schema/Zone.schema';
 import { validateOrReject } from 'class-validator';
+import { Model, ObjectId } from 'mongoose';
+import { Zone, ZoneDocument } from 'src/Schema/Zone.schema';
+import { ZoneDTO } from './DTO/zone.dto';
+import { ZoneUpdateDTO } from './DTO/zone.update.dto';
 
 @Injectable()
 export class ZoneService {
-  constructor(@InjectModel(Zone.name) private zoneModel: Model<ZoneDocument>) {}
+  constructor(
+    @InjectModel(Zone.name)
+    private readonly zoneModel: Model<ZoneDocument>,
+  ) {}
 
   async getAllZones(): Promise<Zone[]> {
     try {
-      return await this.zoneModel.find().exec();
+      const result = await this.zoneModel.find().exec();
+
+      return result;
     } catch (error) {
       throw new HttpException(
         {
@@ -28,85 +34,51 @@ export class ZoneService {
       const zone = await this.zoneModel.findById(id).exec();
 
       if (!zone) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Zone introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+        throw new Error('Zone non trouvé');
       }
 
       return zone;
     } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async createZone(newZone: Zone): Promise<Zone> {
-    try {
-      await validateOrReject(newZone);
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: `Erreur de validation: ${error}`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    try {
-      const createdZone = new this.zoneModel(newZone);
-      return await createdZone.save();
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async updateZone(id: string, updatedZone: Zone): Promise<Zone> {
-    try {
-      await validateOrReject(updatedZone);
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: `Erreur de validation: ${error}`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    try {
-      const zoneUpdated = await this.zoneModel
-        .findOneAndUpdate({ _id: id }, updatedZone, { new: true })
-        .exec();
-
-      if (!zoneUpdated) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Zone introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      switch (error.message) {
+        case 'Zone non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Zone introuvable`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
       }
+    }
+  }
 
-      return zoneUpdated;
+  async createZone(newZone: ZoneDTO): Promise<Zone> {
+    try {
+      validateOrReject(newZone);
     } catch (error) {
-      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: `Erreur de validation: ${error}`,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      const zoneCreated = new this.zoneModel(newZone);
+      const result = await zoneCreated.save();
+
+      return result;
+    } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -122,24 +94,74 @@ export class ZoneService {
       const zoneDeleted = await this.zoneModel.findByIdAndDelete(id).exec();
 
       if (!zoneDeleted) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            error: `Zone introuvable`,
-          },
-          HttpStatus.NOT_FOUND,
-        );
+        throw new Error('Zone non trouvé');
       }
 
       return zoneDeleted;
     } catch (error) {
+      switch (error.message) {
+        case 'Zone non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Zone introuvable`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
+    }
+  }
+
+  async updateZone(id: string, updateZone: ZoneUpdateDTO): Promise<Zone> {
+    try {
+      validateOrReject(updateZone);
+    } catch (error) {
       throw new HttpException(
         {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: `Erreur serveur: ${error}`,
+          status: HttpStatus.BAD_REQUEST,
+          error: `Erreur de validation: ${error}`,
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
+    }
+
+    try {
+      const zoneUpdated = await this.zoneModel
+        .findByIdAndUpdate(id, updateZone, { new: true })
+        .exec();
+
+      if (!zoneUpdated) {
+        throw new Error('Zone non trouvé');
+      }
+
+      return zoneUpdated;
+    } catch (error) {
+      switch (error.message) {
+        case 'Zone non trouvé':
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              error: `Zone introuvable`,
+            },
+            HttpStatus.NOT_FOUND,
+          );
+        default:
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              error: `Erreur serveur: ${error}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+      }
     }
   }
 }

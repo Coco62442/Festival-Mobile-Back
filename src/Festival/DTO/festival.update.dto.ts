@@ -28,16 +28,8 @@ export class FestivalUpdateDTO {
   nbrJours: number;
 
   @IsOptional()
-  @IsObject()
-  @IsNotEmpty()
   @IsArray()
-  idZones: string[];
-
-  @IsOptional()
-  @IsObject()
-  @IsNotEmpty()
-  @IsArray()
-  idJours: string[];
+  idBenevolles: string[];
 
   @IsOptional()
   @IsBoolean()

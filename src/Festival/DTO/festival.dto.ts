@@ -23,13 +23,9 @@ export class FestivalDTO {
   @IsPositive()
   nbrJours: number;
 
-  @IsNotEmpty()
   @IsArray()
-  idZones: string[];
-
-  @IsNotEmpty()
-  @IsArray()
-  idJours: string[];
+  @IsOptional()
+  idBenevolles: string[];
 
   @IsBoolean()
   @IsOptional()
