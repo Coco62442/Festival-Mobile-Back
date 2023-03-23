@@ -6,6 +6,7 @@ import { Benevole, BenevoleDocument } from 'src/Schema/Benevole.schema';
 import { BenevoleCreateDTO } from './DTO/benevole.create.dto';
 import { BenevoleUpdateDTO } from './DTO/benevole.update.dto';
 import { BenevoleReturn } from './Interface/benevoleReturn.interface';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class BenevoleService {
@@ -215,6 +216,39 @@ export class BenevoleService {
             HttpStatus.INTERNAL_SERVER_ERROR,
           );
       }
+    }
+  }
+
+  async verifLogin(email: string, mdp: string): Promise<BenevoleReturn> {
+    try {
+      const benevole = await this.benevoleModel
+        .findOne({ email: email })
+        .exec();
+
+      if (!benevole) {
+        throw new HttpException(
+          "L'identifiant ou le mot de passe est invalide",
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const isPasswordValid = await bcrypt.compare(mdp, benevole.password);
+
+      if (!isPasswordValid) {
+        throw new HttpException(
+          "L'identifiant ou le mot de passe est invalide",
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      return {
+        _id: benevole._id as unknown as ObjectId,
+        nom: benevole.nom,
+        prenom: benevole.prenom,
+        email: benevole.email,
+        isAdmin: benevole.isAdmin,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

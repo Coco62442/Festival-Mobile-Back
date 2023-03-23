@@ -25,7 +25,7 @@ export class BenevoleCreateDTO {
   @IsNotEmpty()
   // TODO : décommenter
   // @IsStrongPassword()
-  readonly password: string;
+  password: string;
 
   @IsBoolean()
   @IsOptional()
