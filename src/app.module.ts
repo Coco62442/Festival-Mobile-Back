@@ -9,6 +9,7 @@ import { FestivalModule } from './Festival/festival.module';
 import { JourModule } from './Jour/jour.module';
 import { ZoneModule } from './Zone/zone.module';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './Authentification/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ConfigModule } from '@nestjs/config';
     CreneauModule,
     JourModule,
     ZoneModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
