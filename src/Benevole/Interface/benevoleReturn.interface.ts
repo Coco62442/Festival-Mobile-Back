@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongoose';
 
 export interface BenevoleReturn {
-  _id: ObjectId;
+  id: ObjectId;
   nom: string;
   prenom: string;
   email: string;

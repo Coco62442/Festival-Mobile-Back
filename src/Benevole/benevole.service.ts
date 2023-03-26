@@ -21,7 +21,7 @@ export class BenevoleService {
 
       return benevoles.map((benevole) => {
         return {
-          _id: benevole._id as unknown as ObjectId,
+          id: benevole._id as unknown as ObjectId,
           nom: benevole.nom,
           prenom: benevole.prenom,
           email: benevole.email,
@@ -48,7 +48,7 @@ export class BenevoleService {
       }
 
       return {
-        _id: benevole._id as unknown as ObjectId,
+        id: benevole._id as unknown as ObjectId,
         nom: benevole.nom,
         prenom: benevole.prenom,
         email: benevole.email,
@@ -97,7 +97,7 @@ export class BenevoleService {
       const benevoleCreated = await benevole.save();
 
       return {
-        _id: benevoleCreated._id as unknown as ObjectId,
+        id: benevoleCreated._id as unknown as ObjectId,
         nom: benevoleCreated.nom,
         prenom: benevoleCreated.prenom,
         email: benevoleCreated.email,
@@ -136,7 +136,7 @@ export class BenevoleService {
       }
 
       return {
-        _id: benevoleDeleted._id as unknown as ObjectId,
+        id: benevoleDeleted._id as unknown as ObjectId,
         nom: benevoleDeleted.nom,
         prenom: benevoleDeleted.prenom,
         email: benevoleDeleted.email,
@@ -190,7 +190,7 @@ export class BenevoleService {
       }
 
       return {
-        _id: benevoleUpdated._id as unknown as ObjectId,
+        id: benevoleUpdated._id as unknown as ObjectId,
         nom: benevoleUpdated.nom,
         prenom: benevoleUpdated.prenom,
         email: benevoleUpdated.email,
@@ -241,7 +241,7 @@ export class BenevoleService {
       }
 
       return {
-        _id: benevole._id as unknown as ObjectId,
+        id: benevole._id as unknown as ObjectId,
         nom: benevole.nom,
         prenom: benevole.prenom,
         email: benevole.email,

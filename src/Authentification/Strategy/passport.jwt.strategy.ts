@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return await this.benevoleService.getBenevoleById(payload.benevole._id)
+    return await this.benevoleService.getBenevoleById(payload.benevole.id)
     .catch(error => {
       throw new UnauthorizedException();
     });   

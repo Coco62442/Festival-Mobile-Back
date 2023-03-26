@@ -8,7 +8,7 @@ import {
 
 export class BenevoleDTO {
   @IsMongoId()
-  readonly _id: string;
+  readonly id: string;
 
   @IsString()
   @IsNotEmpty()
