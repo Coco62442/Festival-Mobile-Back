@@ -13,7 +13,7 @@ import { AuthModule } from './Authentification/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({}),
+    ConfigModule.forRoot({isGlobal: true}),
     MongooseModule.forRoot(
       `mongodb+srv://${process.env.user}:${process.env.mdp}@festivalcluster.iv7ihff.mongodb.net/FestivalMobile?retryWrites=true&w=majority`,
     ),

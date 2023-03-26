@@ -10,7 +10,7 @@ import { JwtStrategy } from './Strategy/passport.jwt.strategy';
   imports: [
     BenevoleModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({ secret: process.env.secret }),
+    JwtModule.register({ secret: "cecinestpasunsecret" }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
