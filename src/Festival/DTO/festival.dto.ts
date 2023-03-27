@@ -25,7 +25,7 @@ export class FestivalDTO {
 
   @IsArray()
   @IsOptional()
-  idBenevolles: string[];
+  idBenevoles: string[];
 
   @IsBoolean()
   @IsOptional()
