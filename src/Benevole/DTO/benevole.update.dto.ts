@@ -28,7 +28,7 @@ export class BenevoleUpdateDTO {
   @IsString()
   @IsNotEmpty()
   @IsStrongPassword()
-  readonly password: string;
+  password: string;
 
   @IsOptional()
   @IsBoolean()

@@ -13,10 +13,12 @@ export class FestivalService {
     private readonly festivalModel: Model<FestivalDocument>,
   ) {}
 
-  async getAllFestivals(): Promise<Festival[]> {
+  async getAllFestivals(): Promise<any[]> {
     try {
       const result = await this.festivalModel.find().exec();
-      
+
+      console.log(result)
+
       return result;
     } catch (error) {
       throw new HttpException(

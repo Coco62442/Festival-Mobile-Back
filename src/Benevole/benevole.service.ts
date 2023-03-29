@@ -180,6 +180,10 @@ export class BenevoleService {
       );
     }
 
+    // TODO: Change this secret
+    const salt = await bcrypt.genSalt(10);
+    updateBenevole.password = await bcrypt.hash(updateBenevole.password, salt);
+
     try {
       const benevoleUpdated = await this.benevoleModel
         .findByIdAndUpdate(id, updateBenevole, { new: true })

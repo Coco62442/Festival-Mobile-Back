@@ -18,7 +18,7 @@ export class FestivalController {
   constructor(private readonly festivalService: FestivalService) {}
 
   @Get()
-  getAllFestival(): Promise<Festival[]> {
+  getAllFestival(): Promise<any[]> {
     return this.festivalService.getAllFestivals().catch((error) => {
       throw new HttpException(error.message, error.status);
     });
