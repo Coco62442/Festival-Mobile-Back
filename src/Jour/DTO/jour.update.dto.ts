@@ -13,19 +13,16 @@ export class JourUpdateDTO {
   nom: string;
 
   @IsOptional()
-  @IsDateString()
   @IsNotEmpty()
-  date: Date;
+  date: string;
 
   @IsOptional()
-  @IsDateString()
   @IsNotEmpty()
-  debutHeure: Date;
+  debutHeure: string;
 
   @IsOptional()
-  @IsDateString()
   @IsNotEmpty()
-  finHeure: Date;
+  finHeure: string;
 
   @IsOptional()
   @IsMongoId()

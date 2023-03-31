@@ -1,13 +1,11 @@
 import { IsNotEmpty, IsDateString, IsMongoId } from 'class-validator';
 
 export class CreneauDTO {
-  @IsDateString()
   @IsNotEmpty()
-  heureDebut: Date;
+  heureDebut: string;
 
-  @IsDateString()
   @IsNotEmpty()
-  heureFin: Date;
+  heureFin: string;
 
   @IsNotEmpty()
   @IsMongoId()

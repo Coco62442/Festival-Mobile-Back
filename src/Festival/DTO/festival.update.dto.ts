@@ -17,9 +17,8 @@ export class FestivalUpdateDTO {
   nom: string;
 
   @IsOptional()
-  @IsDateString()
   @IsNotEmpty()
-  annee: Date;
+  annee: string;
 
   @IsOptional()
   @IsInt()

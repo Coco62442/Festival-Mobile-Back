@@ -10,7 +10,7 @@ export class Festival {
   nom: string;
 
   @Prop({ required: true })
-  annee: Date;
+  annee: string;
 
   @Prop({ required: true })
   nbrJours: number;

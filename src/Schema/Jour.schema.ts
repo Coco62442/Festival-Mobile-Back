@@ -10,13 +10,13 @@ export class Jour {
   nom: string;
 
   @Prop({ required: true })
-  date: Date;
+  date: string;
 
   @Prop({ required: true })
-  debutHeure: Date;
+  debutHeure: string;
 
   @Prop({ required: true })
-  finHeure: Date;
+  finHeure: string;
 
   @Prop({ required: true })
   idFestival: string;

@@ -1,15 +1,18 @@
-import { IsNotEmpty, IsDateString, IsOptional, IsMongoId } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsDateString,
+  IsOptional,
+  IsMongoId,
+} from 'class-validator';
 
 export class CreneauUpdateDTO {
   @IsOptional()
-  @IsDateString()
   @IsNotEmpty()
-  heureDebut: Date;
+  heureDebut: string;
 
   @IsOptional()
-  @IsDateString()
   @IsNotEmpty()
-  heureFin: Date;
+  heureFin: string;
 
   @IsOptional()
   @IsNotEmpty()

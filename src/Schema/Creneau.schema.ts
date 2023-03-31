@@ -6,10 +6,10 @@ export type CreneauDocument = HydratedDocument<Creneau>;
 @Schema({ collection: 'Creneau' })
 export class Creneau {
   @Prop({ required: true })
-  heureDebut: Date;
+  heureDebut: string;
 
   @Prop({ required: true })
-  heureFin: Date;
+  heureFin: string;
 
   @Prop({ required: true })
   idJour: string;

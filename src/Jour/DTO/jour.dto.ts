@@ -12,17 +12,14 @@ export class JourDTO {
   @IsNotEmpty()
   nom: string;
 
-  @IsDateString()
   @IsNotEmpty()
-  date: Date;
+  date: string;
 
-  @IsDateString()
   @IsNotEmpty()
-  debutHeure: Date;
+  debutHeure: string;
 
-  @IsDateString()
   @IsNotEmpty()
-  finHeure: Date;
+  finHeure: string;
 
   @IsString()
   @IsNotEmpty()

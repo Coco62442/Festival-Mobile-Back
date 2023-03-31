@@ -6,7 +6,6 @@ import {
   IsArray,
   IsOptional,
   IsInt,
-  IsDateString,
 } from 'class-validator';
 
 export class FestivalDTO {
@@ -14,9 +13,8 @@ export class FestivalDTO {
   @IsNotEmpty()
   nom: string;
 
-  @IsDateString()
   @IsNotEmpty()
-  annee: Date;
+  annee: string;
 
   @IsInt()
   @IsNotEmpty()
