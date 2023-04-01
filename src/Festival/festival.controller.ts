@@ -31,6 +31,13 @@ export class FestivalController {
     });
   }
 
+  @Get('getFestivalsByBenevole/:id')
+  getFestivalsByBenevole(@Param('id') id: string): Promise<Festival[]> {
+    return this.festivalService.getFestivalsByBenevole(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
+  }
+
   @Post()
   createFestival(@Body() newFestival: FestivalDTO): Promise<Festival> {
     return this.festivalService.createFestival(newFestival).catch((error) => {

@@ -62,6 +62,11 @@ export class FestivalService {
     }
   }
 
+  getFestivalsByBenevole(id: string): Promise<Festival[]> {
+    // Benevole is an array of ObjectId
+    return this.festivalModel.find({ idBenevoles: id }).exec();
+  }
+
   async createFestival(festivalDTO: FestivalDTO): Promise<Festival> {
     try {
       const festival = new this.festivalModel(festivalDTO);
