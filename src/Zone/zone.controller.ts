@@ -31,6 +31,13 @@ export class ZoneController {
     });
   }
 
+  @Get('zonesByFestival/:id')
+  getZonesByFestivals(@Param('id') id: string): Promise<Zone[]> {
+    return this.zoneService.getZonesByFestival(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
+  }
+
   @Post()
   createZone(@Body() newZone: ZoneDTO): Promise<Zone> {
     return this.zoneService.createZone(newZone).catch((error) => {

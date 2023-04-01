@@ -64,7 +64,19 @@ export class FestivalService {
 
   getFestivalsByBenevole(id: string): Promise<Festival[]> {
     // Benevole is an array of ObjectId
-    return this.festivalModel.find({ idBenevoles: id }).exec();
+    try {
+      const festivals = this.festivalModel.find({ idBenevoles: id }).exec();
+
+      return festivals;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async createFestival(festivalDTO: FestivalDTO): Promise<Festival> {

@@ -60,6 +60,22 @@ export class ZoneService {
     }
   }
 
+  async getZonesByFestival(id: string): Promise<Zone[]> {
+    try {
+      const zones = await this.zoneModel.find({ idFestival: id }).exec();
+
+      return zones;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async createZone(newZone: ZoneDTO): Promise<Zone> {
     try {
       validateOrReject(newZone);

@@ -60,6 +60,22 @@ export class JourService {
     }
   }
 
+  async getJoursByFestival(id: string): Promise<Jour[]> {
+    try {
+      const result = await this.jourModel.find({ idFestival: id }).exec();
+
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async createJour(newJour: JourDTO): Promise<Jour> {
     try {
       validateOrReject(newJour);

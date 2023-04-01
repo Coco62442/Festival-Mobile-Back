@@ -31,6 +31,13 @@ export class JourController {
     });
   }
 
+  @Get('joursByFestival/:id')
+  getJoursByFestival(@Param('id') id: string): Promise<Jour[]> {
+    return this.jourService.getJoursByFestival(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
+  }
+
   @Post()
   createJour(@Body() newJour: JourDTO): Promise<Jour> {
     return this.jourService.createJour(newJour).catch((error) => {
