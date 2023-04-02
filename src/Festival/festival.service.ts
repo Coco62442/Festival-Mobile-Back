@@ -79,6 +79,23 @@ export class FestivalService {
     }
   }
 
+  async getFestivalsNewByBenevole(idBenevole: string): Promise<Festival[]> {
+    try {
+      const result = await this.festivalModel.find({ idBenevoles: { $not: { $in: [idBenevole] } }, isClosed: false }).exec();
+  
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  
+
   async createFestival(festivalDTO: FestivalDTO): Promise<Festival> {
     try {
       const festival = new this.festivalModel(festivalDTO);
