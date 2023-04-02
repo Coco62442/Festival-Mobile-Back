@@ -180,4 +180,20 @@ export class ZoneService {
       }
     }
   }
+
+  async deleteZonesByFestival(id: string): Promise<boolean> {
+    try {
+      const result = await this.zoneModel.deleteMany({ idFestival: id }).exec();
+
+      return result.acknowledged;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

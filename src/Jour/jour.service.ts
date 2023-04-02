@@ -179,4 +179,20 @@ export class JourService {
       }
     }
   }
+
+  async deleteJoursByFestival(id: string): Promise<boolean> {
+    try {
+       const result = await this.jourModel.deleteMany({ idFestival: id }).exec();
+
+       return result.acknowledged
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: `Erreur serveur: ${error}`,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

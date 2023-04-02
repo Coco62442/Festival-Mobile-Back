@@ -52,6 +52,13 @@ export class JourController {
     });
   }
 
+  @Delete('joursByFestival/:id')
+  deleteJoursByFestival(@Param('id') id: string): Promise<boolean> {
+    return this.jourService.deleteJoursByFestival(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
+  }
+
   @Patch(':id')
   updateJour(
     @Param('id') id: string,

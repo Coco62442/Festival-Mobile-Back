@@ -52,6 +52,13 @@ export class ZoneController {
     });
   }
 
+  @Delete('zonesByFestival/:id')
+  deleteZonesByFestival(@Param('id') id: string): Promise<boolean> {
+    return this.zoneService.deleteZonesByFestival(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
+  }
+
   @Patch(':id')
   updateZone(
     @Param('id') id: string,

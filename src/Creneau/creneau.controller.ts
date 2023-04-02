@@ -45,6 +45,13 @@ export class CreneauController {
     });
   }
 
+  @Delete('creneauxByJour/:id')
+  deleteCreneauxByJour(@Param('id') id: string): Promise<boolean> {
+    return this.creneauService.deleteCreneauxByJour(id).catch((error) => {
+      throw new HttpException(error.message, error.status);
+    });
+  }
+
   @Patch(':id')
   updateCreneau(
     @Param('id') id: string,
